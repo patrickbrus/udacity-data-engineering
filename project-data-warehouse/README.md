@@ -64,6 +64,13 @@ The database uses a star schema, optimized for queries on song play analysis. Th
 ### Conclusion
 The chosen schema and column structure provide a robust foundation for analyzing Sparkify's song play data. This setup allows for efficient querying of various aspects, including user behavior, song popularity, artist reach, and listening trends over time. By leveraging this schema in AWS Redshift, Sparkify's analytics team can derive meaningful insights to drive data-driven decisions and enhance user engagement.
 
+## End to End Execution
+In order to run this project end-to-end, you have to run the following files in the respective order: 
+
+1. Run the `IaC.ipynb` notebook cell by cell. Ensure that `aws.cfg` is filled with the correct values. 
+2. Run the `create_tables.py` script. It will create all required tables in Redshift. Ensure that the file `dwh.cfg` is filled with the correct values.
+3. Run the `etl.py` script.
+
 ## Example Queries and Results
 ### Top Three Played Songs
 It is always interesting to see what songs the users like most. The following query gets the top three songs of the songplay database.
