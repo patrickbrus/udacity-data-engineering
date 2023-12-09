@@ -23,3 +23,46 @@ The "Sparkify Data Warehouse" project is part of the Udacity Data Engineering Na
 - **dwh.cfg:** Config file used for writing data to Redshift cluster.
 - **IaC.ipynb:** Jupyter notebook that spins up required AWS resources.
 - **README.md:** Project documentation (this file).# udacity-data-engineering
+
+## Project: STEDI Human Balance Analytics (project-stedi-human-balance-analytics)
+
+### Overview
+This project is centered around the STEDI Step Trainer, a novel hardware device developed by the STEDI team. This device is designed to aid users in performing STEDI balance exercises and is equipped with sensors to collect motion data. The accompanying mobile app, integral to the product, collects customer data and interacts with the device's sensors. This project aims to leverage the sensor data from the Step Trainer and the mobile app's accelerometer to train a machine learning model for real-time step detection, with a strong emphasis on user privacy and data utilization ethics.
+
+### Technologies Used
+- **AWS S3**: Data storage for customer, accelerometer, and step trainer datasets.
+- **AWS Glue**: Data processing and ETL (Extract, Transform, Load) jobs for data sanitization and preparation.
+- **AWS Athena**: Querying processed data in AWS Glue tables.
+- **Python**: Scripting for AWS Glue jobs and data processing tasks.
+- **SQL**: Structuring and querying data in AWS Glue and Athena.
+
+### Project Structure
+- `README.md`: Project documentation (this file).
+- `figures/`: Contains all the screenshots of the datasets and architecture diagrams.
+    - `accelerometer_landing.png`
+    - `accelerometer_trusted.png`
+    - `customer_curated.png`
+    - `customer_landing.png`
+    - `customer_trusted.png`
+    - `machine_learning_curated.png`
+    - `project_architecture.png`
+    - `step_trainer_landing.png`
+    - `step_trainer_trusted.png`
+- `src/`: Source code for the project.
+    - `python/`: Python scripts for AWS Glue jobs.
+        - `accelerometer_landing_to_trusted.py`
+        - `customer_landing_to_trusted.py`
+        - `customer_trusted_to_curated.py`
+        - `machine_learning_curated.py`
+        - `step_trainer_landing_to_trusted.py`
+    - `sql/`: SQL scripts for initial data structuring.
+        - `accelerometer_landing.sql`
+        - `customer_landing.sql`
+        - `step_trainer_landing.sql`
+
+### Additional Notes
+- Ensure proper configuration and deployment of AWS resources for seamless data flow.
+- Regularly update and maintain the scripts to adapt to new data structures or requirements.
+- Validate data integrity and consistency through regular checks and balances in the pipeline.
+
+
