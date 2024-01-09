@@ -1,2 +1,4 @@
 set_connections_and_variables.sh
 .env
+.venv
+*.pyc
