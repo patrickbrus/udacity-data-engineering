@@ -2,16 +2,18 @@ from datetime import datetime, timedelta
 import pendulum
 import os
 from airflow.decorators import dag
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
-                                LoadDimensionOperator, DataQualityOperator)
-
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
+from operators.create_tables import CreateRedshiftTablesOperator
+from operators.load_dimensions import LoadDimensionOperator
+from operators.data_quality import DataQualityOperator
+from operators.load_fact import LoadFactOperator
 
 default_args = {
     'owner': 'udacity',
     'start_date': pendulum.now(),
     'depends_on_past': False,
-    'retries': 3,
+    #'retries': 3,
     'retry_delay': timedelta(minutes=5),
     'catchup': False
 }
@@ -23,25 +25,32 @@ default_args = {
 )
 def final_project():
 
-    start_operator = DummyOperator(task_id='Begin_execution')
-
-    stage_events_to_redshift = StageToRedshiftOperator(
-        task_id="Stage_events",
-        table="staging_events",
-        conn_id="redshift",
-        aws_credentials_id="aws_credentials",
-        s3_bucket="udacity-dend",
-        s3_key="log-data",
-        json_path="s3://udacity-dend/log_json_path.json"
+    start_operator = EmptyOperator(task_id='Begin_execution')
+    
+    create_redshift_tables = CreateRedshiftTablesOperator(
+        task_id="Create_redshift_tables",
     )
 
-    stage_songs_to_redshift = StageToRedshiftOperator(
+    stage_events_to_redshift = S3ToRedshiftOperator(
+        task_id="Stage_events",
+        schema="public",
+        table="staging_events",
+        redshift_conn_id="redshift",
+        aws_conn_id="aws_credentials",
+        s3_bucket="patrick-data-pipeline-bucket",
+        s3_key="log-data",
+        copy_options= ["FORMAT AS JSON 's3://patrick-data-pipeline-bucket/log_json_path.json'"]
+    )
+
+    stage_songs_to_redshift = S3ToRedshiftOperator(
         task_id='Stage_songs',
+        schema="public",
         table="staging_songs",
-        conn_id="redshift",
-        aws_credentials_id="aws_credentials",
-        s3_bucket="udacity-dend",
-        s3_key="song-data"
+        redshift_conn_id="redshift",
+        aws_conn_id="aws_credentials",
+        s3_bucket="patrick-data-pipeline-bucket",
+        s3_key="song-data",
+        copy_options= ["FORMAT AS JSON 'auto'"]
     )
 
     load_songplays_table = LoadFactOperator(
@@ -69,13 +78,10 @@ def final_project():
     )
 
     # define task order
-    start_operator >> stage_events_to_redshift
-    start_operator >> stage_songs_to_redshift
+    start_operator >> create_redshift_tables
+    create_redshift_tables >> [stage_events_to_redshift, stage_songs_to_redshift]
     stage_events_to_redshift >> load_songplays_table
     stage_songs_to_redshift >> load_songplays_table
-    load_songplays_table >> load_user_dimension_table >> run_quality_checks
-    load_songplays_table >> load_song_dimension_table >> run_quality_checks
-    load_songplays_table >> load_artist_dimension_table >> run_quality_checks
-    load_songplays_table >> load_time_dimension_table >> run_quality_checks
+    load_songplays_table >> [load_user_dimension_table, load_song_dimension_table, load_artist_dimension_table, load_time_dimension_table] >> run_quality_checks
 
 final_project_dag = final_project()
