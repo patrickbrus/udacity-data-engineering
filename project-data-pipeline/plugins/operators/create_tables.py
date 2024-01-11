@@ -33,7 +33,7 @@ class CreateRedshiftTablesOperator(BaseOperator):
 
         # Create a PostgresOperator for executing SQL statements
         redshift_sql_hook = RedshiftSQLHook(
-            task_id=f"{self.task_id}_create_tables",
+            task_id=f"{self.task_id}_redshift_op",
             aws_conn_id=self.aws_credentials_id,
             redshift_conn_id=self.redshift_conn_id
         )

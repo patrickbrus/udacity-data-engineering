@@ -12,3 +12,40 @@ This project uses Airflow. Please follow the instructions [here](https://airflow
 
 ## Initial Setup
 
+1. Create S3 Bucket.
+2. Copy data into S3 Bucket.
+
+    ```bash
+    aws s3 cp s3://udacity-dend/log-data/ s3://patrick-data-pipeline-bucket/log-data/ --recursive
+    aws s3 cp s3://udacity-dend/song-data/ s3://patrick-data-pipeline-bucket/song-data/ --recursive
+    aws s3 cp s3://udacity-dend/log_json_path.json s3://patrick-data-pipeline-bucket/
+    ```
+3. Create IAM user and attach the following policies:
+    - AdministratorAccess
+    - AmazonRedshiftFullAccess
+    - AmazonS3FullAccess
+4. Create security key for IAM user and save credentials.
+5. Create Redshift role:
+
+    ```bash
+    aws iam create-role --role-name my-redshift-service-role --assume-role-policy-document '{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "redshift.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }'
+    ```
+6. Provide full s3 access to redshift role:
+
+    ```bash
+    aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --role-name my-redshift-service-role
+    ```
+7. Create Redshift cluster and choose the created role ***my-redshift-service-role***.
+
+

@@ -8,6 +8,7 @@ from operators.create_tables import CreateRedshiftTablesOperator
 from operators.load_dimensions import LoadDimensionOperator
 from operators.data_quality import DataQualityOperator
 from operators.load_fact import LoadFactOperator
+from helpers.sql_queries import SqlQueries
 
 default_args = {
     'owner': 'udacity',
@@ -55,6 +56,7 @@ def final_project():
 
     load_songplays_table = LoadFactOperator(
         task_id='Load_songplays_fact_table',
+        sql_query=SqlQueries.songplay_table_insert
     )
 
     load_user_dimension_table = LoadDimensionOperator(
