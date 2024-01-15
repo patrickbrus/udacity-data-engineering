@@ -1,4 +1,4 @@
-from airflow.providers.postgres.hooks.postgres import PostgresHook
+from airflow.providers.amazon.aws.hooks.redshift_sql import RedshiftSQLHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
@@ -8,15 +8,35 @@ class LoadDimensionOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
+                 sql_query,
+                 table,
+                 redshift_conn_id="redshift",
+                 aws_credentials_id="aws_credentials",
+                 truncate_table=True,
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
+        self.sql_query = sql_query
+        self.table = table
+        self.redshift_conn_id = redshift_conn_id
+        self.aws_credentials_id = aws_credentials_id
+        self.truncate_table = truncate_table
 
     def execute(self, context):
-        self.log.info('LoadDimensionOperator not implemented yet')
+        self.log.info(f"Start loading data into dimension table {self.table}...")
+        
+        # Create a RedshiftSQL operator to run the query
+        redshift_sql_hook = RedshiftSQLHook(
+            task_id=f"{self.task_id}_redshift_op",
+            aws_conn_id=self.aws_credentials_id,
+            redshift_conn_id=self.redshift_conn_id
+        )
+        
+        self.log.info(f"Truncate table is set to {self.truncate_table}.")
+        if self.truncate_table:
+            self.log.info(f"Truncate table first before inserting data...")
+            redshift_sql_hook.run(f"TRUNCATE TABLE {self.table}",
+                                  autocommit=True)
+            
+        redshift_sql_hook.run(f"INSERT INTO {self.table} {self.sql_query}",
+                              autocommit=True)

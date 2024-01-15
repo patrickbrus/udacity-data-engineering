@@ -9,24 +9,25 @@ from operators.load_dimensions import LoadDimensionOperator
 from operators.data_quality import DataQualityOperator
 from operators.load_fact import LoadFactOperator
 from helpers.sql_queries import SqlQueries
+from helpers.sql_tests import SQLTests
 
 default_args = {
-    'owner': 'udacity',
-    'start_date': pendulum.now(),
-    'depends_on_past': False,
-    #'retries': 3,
-    'retry_delay': timedelta(minutes=5),
-    'catchup': False
+    "owner": "Patrick Brus",
+    "start_date": pendulum.now(),
+    "depends_on_past": False,
+    "retries": 3,
+    "retry_delay": timedelta(minutes=5),
+    "catchup": False
 }
 
 @dag(
     default_args=default_args,
-    description='Load and transform data in Redshift with Airflow',
-    schedule_interval='0 * * * *'
+    description="Load and transform data in Redshift with Airflow",
+    schedule_interval="0 * * * *"
 )
 def final_project():
 
-    start_operator = EmptyOperator(task_id='Begin_execution')
+    start_operator = EmptyOperator(task_id="Begin_execution")
     
     create_redshift_tables = CreateRedshiftTablesOperator(
         task_id="Create_redshift_tables",
@@ -44,7 +45,7 @@ def final_project():
     )
 
     stage_songs_to_redshift = S3ToRedshiftOperator(
-        task_id='Stage_songs',
+        task_id="Stage_songs",
         schema="public",
         table="staging_songs",
         redshift_conn_id="redshift",
@@ -55,28 +56,42 @@ def final_project():
     )
 
     load_songplays_table = LoadFactOperator(
-        task_id='Load_songplays_fact_table',
-        sql_query=SqlQueries.songplay_table_insert
+        task_id="Load_songplays_fact_table",
+        sql_query=SqlQueries.songplay_table_insert,
+        table="songplays"
     )
 
     load_user_dimension_table = LoadDimensionOperator(
-        task_id='Load_user_dim_table',
+        task_id="Load_user_dim_table",
+        sql_query=SqlQueries.user_table_insert,
+        table="users",
+        truncate_table=True
     )
 
     load_song_dimension_table = LoadDimensionOperator(
-        task_id='Load_song_dim_table',
+        task_id="Load_song_dim_table",
+        sql_query=SqlQueries.song_table_insert,
+        table="songs",
+        truncate_table=True
     )
 
     load_artist_dimension_table = LoadDimensionOperator(
-        task_id='Load_artist_dim_table',
+        task_id="Load_artist_dim_table",
+        sql_query=SqlQueries.artist_table_insert,
+        table="artists",
+        truncate_table=True
     )
 
     load_time_dimension_table = LoadDimensionOperator(
-        task_id='Load_time_dim_table',
+        task_id="Load_time_dim_table",
+        sql_query=SqlQueries.time_table_insert,
+        table="time",
+        truncate_table=True
     )
 
     run_quality_checks = DataQualityOperator(
-        task_id='Run_data_quality_checks',
+        task_id="Run_data_quality_checks",
+        sql_tests=SQLTests.sql_tests,
     )
 
     # define task order

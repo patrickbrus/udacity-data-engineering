@@ -37,8 +37,8 @@ class CreateRedshiftTablesOperator(BaseOperator):
             aws_conn_id=self.aws_credentials_id,
             redshift_conn_id=self.redshift_conn_id
         )
-        redshift_sql_hook.run(sql_statements,
-                               autocommit=True)
+        #redshift_sql_hook.run(sql_statements,
+        #                       autocommit=True)
     
     def get_list_sql_statements(self, sql_statement):
         """ 
