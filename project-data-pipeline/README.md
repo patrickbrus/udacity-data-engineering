@@ -48,4 +48,53 @@ This project uses Airflow. Please follow the instructions [here](https://airflow
     ```
 7. Create Redshift cluster and choose the created role ***my-redshift-service-role***.
 
+## Setting up Connections
+- Connect Airflow and AWS with creating an aws credentials connection in Airflow (***aws_credentials***)
+- Connect Airflow and Redshift with creating a redshift connection in Airflow (***redshift***)
+
+## Implemented Operators
+
+This project implements several custom operators for building data pipelines using Apache Airflow. These operators are designed to facilitate data extraction, transformation, and quality checks in a Redshift database.
+
+### StageToRedshiftOperator
+
+The `StageToRedshiftOperator` is responsible for loading JSON-formatted data from an S3 bucket into an Amazon Redshift database. It performs the following tasks:
+
+- Creates and runs a SQL COPY statement based on the provided parameters.
+- Parameters specify the S3 file location, target Redshift table, and credentials.
+- Supports templated fields to load timestamped files based on execution time.
+
+### LoadFactOperator
+
+The `LoadFactOperator` is used for loading data into fact tables in Redshift. It accepts SQL queries and executes them against the target Redshift database. Key features include:
+
+- Executing SQL queries for fact table loading.
+- Supporting append-only functionality for massive fact tables.
+- Specifying the Redshift connection and AWS credentials.
+
+### LoadDimensionOperator
+
+The `LoadDimensionOperator` is responsible for loading data into dimension tables in Redshift. It provides the following capabilities:
+
+- Executing SQL queries for dimension table loading.
+- Supporting both truncate-insert and append-only modes.
+- Specifying the Redshift connection and AWS credentials.
+
+### DataQualityOperator
+
+The `DataQualityOperator` is designed for running data quality checks on the loaded data in Redshift. It offers the following features:
+
+- Running SQL-based test cases to check data quality.
+- Comparing the test results with expected outcomes.
+- Raising exceptions and retries in case of mismatches.
+
+### Usage
+
+These operators can be utilized within your Airflow DAGs to create flexible and reliable data pipelines. Make sure to configure the required connections and credentials in Airflow's Connection UI for Redshift and S3.
+
+For specific examples and usage instructions, please refer to the DAGs and Python scripts in the repository.
+
+For more details on each operator, check the respective class documentation in the projects source code.
+
+
 
