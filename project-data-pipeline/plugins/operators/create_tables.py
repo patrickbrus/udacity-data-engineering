@@ -12,14 +12,10 @@ class CreateRedshiftTablesOperator(BaseOperator):
     def __init__(
         self,
         sql_file_path="/opt/airflow/plugins/helpers/create_tables.sql",
-        redshift_conn_id="redshift",
-        aws_credentials_id="aws_credentials",
         *args, **kwargs):
         
         super(CreateRedshiftTablesOperator, self).__init__(*args, **kwargs)
-        self.redshift_conn_id = redshift_conn_id
         self.sql_file_path = sql_file_path
-        self.aws_credentials_id = aws_credentials_id
 
     def execute(self, context):
         # Read the SQL statements from the file
@@ -34,11 +30,11 @@ class CreateRedshiftTablesOperator(BaseOperator):
         # Create a PostgresOperator for executing SQL statements
         redshift_sql_hook = RedshiftSQLHook(
             task_id=f"{self.task_id}_redshift_op",
-            aws_conn_id=self.aws_credentials_id,
-            redshift_conn_id=self.redshift_conn_id
+            aws_conn_id=self.dag.default_args.get("aws_conn_id"),
+            redshift_conn_id=self.dag.default_args.get("redshift_conn_id")
         )
-        #redshift_sql_hook.run(sql_statements,
-        #                       autocommit=True)
+        redshift_sql_hook.run(sql_statements,
+                               autocommit=True)
     
     def get_list_sql_statements(self, sql_statement):
         """ 

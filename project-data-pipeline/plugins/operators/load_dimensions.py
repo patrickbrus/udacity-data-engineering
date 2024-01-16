@@ -10,16 +10,12 @@ class LoadDimensionOperator(BaseOperator):
     def __init__(self,
                  sql_query,
                  table,
-                 redshift_conn_id="redshift",
-                 aws_credentials_id="aws_credentials",
                  truncate_table=True,
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
         self.sql_query = sql_query
         self.table = table
-        self.redshift_conn_id = redshift_conn_id
-        self.aws_credentials_id = aws_credentials_id
         self.truncate_table = truncate_table
 
     def execute(self, context):
@@ -28,8 +24,8 @@ class LoadDimensionOperator(BaseOperator):
         # Create a RedshiftSQL operator to run the query
         redshift_sql_hook = RedshiftSQLHook(
             task_id=f"{self.task_id}_redshift_op",
-            aws_conn_id=self.aws_credentials_id,
-            redshift_conn_id=self.redshift_conn_id
+            aws_conn_id=self.dag.default_args.get("aws_conn_id"),
+            redshift_conn_id=self.dag.default_args.get("redshift_conn_id")
         )
         
         self.log.info(f"Truncate table is set to {self.truncate_table}.")

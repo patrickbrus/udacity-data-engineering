@@ -3,11 +3,11 @@ import pendulum
 import os
 from airflow.decorators import dag
 from airflow.operators.empty import EmptyOperator
-from airflow.providers.amazon.aws.transfers.s3_to_redshift import S3ToRedshiftOperator
 from operators.create_tables import CreateRedshiftTablesOperator
 from operators.load_dimensions import LoadDimensionOperator
 from operators.data_quality import DataQualityOperator
 from operators.load_fact import LoadFactOperator
+from operators.stage_redshift import StageToRedshiftOperator
 from helpers.sql_queries import SqlQueries
 from helpers.sql_tests import SQLTests
 
@@ -17,7 +17,9 @@ default_args = {
     "depends_on_past": False,
     "retries": 3,
     "retry_delay": timedelta(minutes=5),
-    "catchup": False
+    "catchup": False,
+    "redshift_conn_id": "redshift",
+    "aws_conn_id": "aws_credentials"
 }
 
 @dag(
@@ -33,23 +35,19 @@ def final_project():
         task_id="Create_redshift_tables",
     )
 
-    stage_events_to_redshift = S3ToRedshiftOperator(
+    stage_events_to_redshift = StageToRedshiftOperator(
         task_id="Stage_events",
         schema="public",
         table="staging_events",
-        redshift_conn_id="redshift",
-        aws_conn_id="aws_credentials",
         s3_bucket="patrick-data-pipeline-bucket",
         s3_key="log-data",
         copy_options= ["FORMAT AS JSON 's3://patrick-data-pipeline-bucket/log_json_path.json'"]
     )
 
-    stage_songs_to_redshift = S3ToRedshiftOperator(
+    stage_songs_to_redshift = StageToRedshiftOperator(
         task_id="Stage_songs",
         schema="public",
         table="staging_songs",
-        redshift_conn_id="redshift",
-        aws_conn_id="aws_credentials",
         s3_bucket="patrick-data-pipeline-bucket",
         s3_key="song-data",
         copy_options= ["FORMAT AS JSON 'auto'"]

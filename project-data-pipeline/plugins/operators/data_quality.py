@@ -9,22 +9,18 @@ class DataQualityOperator(BaseOperator):
     @apply_defaults
     def __init__(self,
                  sql_tests: dict,
-                 redshift_conn_id: str="redshift",
-                 aws_credentials_id: str="aws_credentials",
                  *args, **kwargs):
 
         super(DataQualityOperator, self).__init__(*args, **kwargs)
         self.sql_tests = sql_tests
-        self.redshift_conn_id = redshift_conn_id
-        self.aws_credentials_id = aws_credentials_id
 
     def execute(self, context):
         self.log.info(f"Start data quality check...")
         
         redshift_sql_hook = RedshiftSQLHook(
             task_id=f"{self.task_id}_redshift_op",
-            aws_conn_id=self.aws_credentials_id,
-            redshift_conn_id=self.redshift_conn_id
+            aws_conn_id=self.dag.default_args.get("aws_conn_id"),
+            redshift_conn_id=self.dag.default_args.get("redshift_conn_id")
         )
         
         for sql_test in self.sql_tests:
