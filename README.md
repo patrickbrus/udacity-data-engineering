@@ -65,4 +65,27 @@ This project is centered around the STEDI Step Trainer, a novel hardware device 
 - Regularly update and maintain the scripts to adapt to new data structures or requirements.
 - Validate data integrity and consistency through regular checks and balances in the pipeline.
 
+## Project: Data Pipelines with Airflow
 
+### Overview
+
+A music streaming company, Sparkify, has decided that it is time to introduce more automation and monitoring to their data warehouse ETL pipelines and come to the conclusion that the best tool to achieve this is Apache Airflow.
+
+They have decided to bring you into the project and expect you to create high grade data pipelines that are dynamic and built from reusable tasks, can be monitored, and allow easy backfills. They have also noted that the data quality plays a big part when analyses are executed on top the data warehouse and want to run tests against their datasets after the ETL steps have been executed to catch any discrepancies in the datasets.
+
+The source data resides in S3 and needs to be processed in Sparkify's data warehouse in Amazon Redshift. The source datasets consist of JSON logs that tell about user activity in the application and JSON metadata about the songs the users listen to.
+
+### Technologies Used
+
+- **Apache Airflow**: Orchestrates and schedules data pipeline workflows, enabling automation and monitoring.
+- **Amazon Redshift**: Serves as the data warehouse for storing and querying processed data with high performance.
+- **Amazon S3**: Stores source data in JSON format, providing scalable and durable object storage in the cloud.
+- **Python**: Primary programming language used for building the data pipeline and its components, offering extensive libraries and tools for data manipulation and integration with AWS services.
+- **SQL**: Used for data transformation, querying, and quality checks within the data pipeline, including filtering, aggregation, joining, and data quality assurance.
+
+
+### Project Structure
+- **dags:** This folder contains the Directed Acyclic Graphs (DAGs) that defines the Airflow pipeline.
+- **plugins:** Contains helper functions, operators, and other code components necessary for building and executing the data pipeline.
+- **docker-compose:** Includes configuration files for setting up the Airflow environment using Docker Compose.
+- **requirements.txt:** Lists the Python packages and dependencies required for the project.
